@@ -13,6 +13,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import Inventory from './pages/Inventory';
 
 function App() {
   return (
@@ -39,7 +40,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetail />} />
-              <Route path="/inventory" element={<div className="p-8">Inventory (Protected)</div>} />
+              <Route path="/inventory" element={<Inventory />} />
               <Route path="/settings" element={<div className="p-8">Settings (Protected)</div>} />
             </Route>
           </Route>
