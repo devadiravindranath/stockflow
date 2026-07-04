@@ -14,6 +14,7 @@ import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Inventory from './pages/Inventory';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -41,7 +42,7 @@ function App() {
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/inventory" element={<Inventory />} />
-              <Route path="/settings" element={<div className="p-8">Settings (Protected)</div>} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
           </Route>
 
