@@ -146,6 +146,12 @@ const ProductDetail = () => {
                 </dd>
               </div>
               <div>
+                <dt className="text-sm font-medium text-slate-500">Low Stock Threshold</dt>
+                <dd className="mt-1 text-sm text-slate-900">
+                  {product.low_stock_threshold !== null ? product.low_stock_threshold : 'Default'}
+                </dd>
+              </div>
+              <div>
                 <dt className="text-sm font-medium text-slate-500">Date Added</dt>
                 <dd className="mt-1 text-sm text-slate-900">
                   {new Date(product.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}

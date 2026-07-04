@@ -8,6 +8,7 @@ const EMPTY_FORM = {
   description: '',
   price: '',
   cost_price: '',
+  low_stock_threshold: '',
 };
 
 const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
@@ -22,6 +23,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
         description: initialData.description || '',
         price: initialData.price?.toString() || '',
         cost_price: initialData.cost_price?.toString() || '',
+        low_stock_threshold: initialData.low_stock_threshold?.toString() || '',
       });
     } else {
       setFormData(EMPTY_FORM);
@@ -68,6 +70,15 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
       }
     }
 
+    if (formData.low_stock_threshold !== '') {
+      const thresholdNum = Number(formData.low_stock_threshold);
+      if (!Number.isInteger(thresholdNum)) {
+        newErrors.low_stock_threshold = 'Must be an integer';
+      } else if (thresholdNum < 0) {
+        newErrors.low_stock_threshold = 'Cannot be negative';
+      }
+    }
+
     if (formData.description.length > 500) {
       newErrors.description = 'Description cannot exceed 500 characters';
     }
@@ -95,6 +106,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
       description: formData.description.trim(),
       price: formData.price !== '' ? parseFloat(formData.price) : 0,
       cost_price: formData.cost_price !== '' ? parseFloat(formData.cost_price) : 0,
+      low_stock_threshold: formData.low_stock_threshold !== '' ? parseInt(formData.low_stock_threshold, 10) : null,
     });
   };
 
@@ -111,7 +123,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
         required
       />
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <Input
           id="sku"
           label="SKU"
@@ -122,6 +134,20 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
           maxLength={50}
           required
         />
+        <Input
+          id="low_stock_threshold"
+          label="Low Stock Threshold"
+          type="number"
+          placeholder="e.g. 10 (Optional)"
+          min="0"
+          step="1"
+          value={formData.low_stock_threshold}
+          onChange={handleChange}
+          error={errors.low_stock_threshold}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <Input
           id="cost_price"
           label="Cost Price ($)"
