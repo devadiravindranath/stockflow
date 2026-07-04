@@ -8,7 +8,9 @@ if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
-const dbPath = path.join(dataDir, 'stockflow.db');
+// Resolve DB path: prefer DB_STORAGE env var (Render persistent disk),
+// fall back to local data directory for development.
+const dbPath = process.env.DB_STORAGE || path.join(dataDir, 'stockflow.db');
 
 // Establish database connection
 const db = new Database(dbPath, {
