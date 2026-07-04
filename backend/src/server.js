@@ -1,6 +1,10 @@
 require('dotenv').config();
 
 const app = require('./app');
+const { initDatabase } = require('./models/database');
+
+// Initialize Database Schema
+initDatabase();
 
 const PORT = process.env.PORT || 5000;
 
