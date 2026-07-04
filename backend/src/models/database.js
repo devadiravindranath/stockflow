@@ -38,6 +38,7 @@ function initDatabase() {
       sku TEXT NOT NULL,
       description TEXT,
       price REAL DEFAULT 0,
+      cost_price REAL DEFAULT 0,
       organization_id INTEGER NOT NULL,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP,

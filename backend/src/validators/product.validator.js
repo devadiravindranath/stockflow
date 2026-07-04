@@ -40,6 +40,24 @@ const validateProduct = (req, res, next) => {
     req.body.price = 0;
   }
 
+  // Cost Price: optional, non-negative number
+  const { cost_price } = req.body;
+  if (cost_price !== undefined && cost_price !== null && cost_price !== '') {
+    const costPriceNum = Number(cost_price);
+    if (isNaN(costPriceNum)) {
+      return next(new ApiError(400, 'Cost Price must be a valid number'));
+    }
+    if (costPriceNum < 0) {
+      return next(new ApiError(400, 'Cost Price cannot be negative'));
+    }
+    if (costPriceNum > 1_000_000) {
+      return next(new ApiError(400, 'Cost Price cannot exceed $1,000,000'));
+    }
+    req.body.cost_price = costPriceNum;
+  } else {
+    req.body.cost_price = 0;
+  }
+
   // Description: optional, max 500 chars
   if (description && typeof description === 'string' && description.length > 500) {
     return next(new ApiError(400, 'Description cannot exceed 500 characters'));

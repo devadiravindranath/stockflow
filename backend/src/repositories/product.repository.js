@@ -2,12 +2,12 @@ const db = require('../config/database');
 
 class ProductRepository {
   create(productData) {
-    const { name, sku, description, price, organization_id } = productData;
+    const { name, sku, description, price, cost_price, organization_id } = productData;
     const stmt = db.prepare(`
-      INSERT INTO products (name, sku, description, price, organization_id)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO products (name, sku, description, price, cost_price, organization_id)
+      VALUES (?, ?, ?, ?, ?, ?)
     `);
-    const info = stmt.run(name, sku, description, price || 0, organization_id);
+    const info = stmt.run(name, sku, description, price || 0, cost_price || 0, organization_id);
     return this.findById(info.lastInsertRowid, organization_id);
   }
 
@@ -43,13 +43,13 @@ class ProductRepository {
   }
 
   update(id, organizationId, updateData) {
-    const { name, sku, description, price } = updateData;
+    const { name, sku, description, price, cost_price } = updateData;
     const stmt = db.prepare(`
       UPDATE products 
-      SET name = ?, sku = ?, description = ?, price = ?, updated_at = CURRENT_TIMESTAMP
+      SET name = ?, sku = ?, description = ?, price = ?, cost_price = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND organization_id = ?
     `);
-    stmt.run(name, sku, description, price, id, organizationId);
+    stmt.run(name, sku, description, price, cost_price || 0, id, organizationId);
     return this.findById(id, organizationId);
   }
 
