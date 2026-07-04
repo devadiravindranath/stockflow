@@ -134,7 +134,13 @@ const ProductDetail = () => {
                 <dd className="mt-1 text-sm text-slate-900 font-mono">{product.sku}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-slate-500">Price</dt>
+                <dt className="text-sm font-medium text-slate-500">Cost Price</dt>
+                <dd className="mt-1 text-sm text-slate-900">
+                  ${(product.cost_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-slate-500">Selling Price</dt>
                 <dd className="mt-1 text-sm text-slate-900">
                   ${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </dd>

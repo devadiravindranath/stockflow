@@ -7,6 +7,7 @@ const EMPTY_FORM = {
   sku: '',
   description: '',
   price: '',
+  cost_price: '',
 };
 
 const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
@@ -20,6 +21,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
         sku: initialData.sku || '',
         description: initialData.description || '',
         price: initialData.price?.toString() || '',
+        cost_price: initialData.cost_price?.toString() || '',
       });
     } else {
       setFormData(EMPTY_FORM);
@@ -55,6 +57,17 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
       }
     }
 
+    if (formData.cost_price !== '') {
+      const costNum = parseFloat(formData.cost_price);
+      if (isNaN(costNum)) {
+        newErrors.cost_price = 'Cost Price must be a valid number';
+      } else if (costNum < 0) {
+        newErrors.cost_price = 'Cost Price cannot be negative';
+      } else if (costNum > 1_000_000) {
+        newErrors.cost_price = 'Cost Price cannot exceed $1,000,000';
+      }
+    }
+
     if (formData.description.length > 500) {
       newErrors.description = 'Description cannot exceed 500 characters';
     }
@@ -81,6 +94,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
       sku: formData.sku.trim().toUpperCase(),
       description: formData.description.trim(),
       price: formData.price !== '' ? parseFloat(formData.price) : 0,
+      cost_price: formData.cost_price !== '' ? parseFloat(formData.cost_price) : 0,
     });
   };
 
@@ -97,7 +111,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
         required
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <Input
           id="sku"
           label="SKU"
@@ -109,8 +123,20 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
           required
         />
         <Input
+          id="cost_price"
+          label="Cost Price ($)"
+          type="number"
+          placeholder="0.00"
+          min="0"
+          max="1000000"
+          step="0.01"
+          value={formData.cost_price}
+          onChange={handleChange}
+          error={errors.cost_price}
+        />
+        <Input
           id="price"
-          label="Price ($)"
+          label="Selling Price ($)"
           type="number"
           placeholder="0.00"
           min="0"
