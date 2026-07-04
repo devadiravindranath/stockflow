@@ -29,14 +29,36 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Product name is required';
-    if (!formData.sku.trim()) newErrors.sku = 'SKU is required';
-    if (formData.price !== '' && isNaN(parseFloat(formData.price))) {
-      newErrors.price = 'Price must be a valid number';
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Product name is required';
+    } else if (formData.name.trim().length > 100) {
+      newErrors.name = 'Product name cannot exceed 100 characters';
     }
-    if (formData.price !== '' && parseFloat(formData.price) < 0) {
-      newErrors.price = 'Price cannot be negative';
+
+    if (!formData.sku.trim()) {
+      newErrors.sku = 'SKU is required';
+    } else if (formData.sku.trim().length > 50) {
+      newErrors.sku = 'SKU cannot exceed 50 characters';
+    } else if (!/^[A-Za-z0-9\-_]+$/.test(formData.sku.trim())) {
+      newErrors.sku = 'Only letters, numbers, hyphens, and underscores allowed';
     }
+
+    if (formData.price !== '') {
+      const priceNum = parseFloat(formData.price);
+      if (isNaN(priceNum)) {
+        newErrors.price = 'Price must be a valid number';
+      } else if (priceNum < 0) {
+        newErrors.price = 'Price cannot be negative';
+      } else if (priceNum > 1_000_000) {
+        newErrors.price = 'Price cannot exceed $1,000,000';
+      }
+    }
+
+    if (formData.description.length > 500) {
+      newErrors.description = 'Description cannot exceed 500 characters';
+    }
+
     return newErrors;
   };
 
@@ -71,6 +93,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
         value={formData.name}
         onChange={handleChange}
         error={errors.name}
+        maxLength={100}
         required
       />
 
@@ -82,6 +105,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
           value={formData.sku}
           onChange={handleChange}
           error={errors.sku}
+          maxLength={50}
           required
         />
         <Input
@@ -90,6 +114,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
           type="number"
           placeholder="0.00"
           min="0"
+          max="1000000"
           step="0.01"
           value={formData.price}
           onChange={handleChange}
@@ -104,11 +129,20 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
         <textarea
           id="description"
           rows={3}
-          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors sm:text-sm placeholder-slate-400 text-slate-900 resize-none"
+          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors sm:text-sm placeholder-slate-400 text-slate-900 resize-none ${
+            errors.description ? 'border-danger-300' : 'border-slate-300'
+          }`}
           placeholder="Optional product description..."
           value={formData.description}
           onChange={handleChange}
+          maxLength={500}
         />
+        <div className="flex justify-between mt-1">
+          {errors.description ? (
+            <p className="text-sm text-danger-600">{errors.description}</p>
+          ) : <span />}
+          <p className="text-xs text-slate-400">{formData.description.length}/500</p>
+        </div>
       </div>
 
       <div className="flex justify-end space-x-3 pt-2">
