@@ -58,6 +58,21 @@ const validateProduct = (req, res, next) => {
     req.body.cost_price = 0;
   }
 
+  // Low Stock Threshold: optional, non-negative integer
+  const { low_stock_threshold } = req.body;
+  if (low_stock_threshold !== undefined && low_stock_threshold !== null && low_stock_threshold !== '') {
+    const thresholdNum = Number(low_stock_threshold);
+    if (!Number.isInteger(thresholdNum)) {
+      return next(new ApiError(400, 'Low Stock Threshold must be an integer'));
+    }
+    if (thresholdNum < 0) {
+      return next(new ApiError(400, 'Low Stock Threshold cannot be negative'));
+    }
+    req.body.low_stock_threshold = thresholdNum;
+  } else {
+    req.body.low_stock_threshold = null;
+  }
+
   // Description: optional, max 500 chars
   if (description && typeof description === 'string' && description.length > 500) {
     return next(new ApiError(400, 'Description cannot exceed 500 characters'));

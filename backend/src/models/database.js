@@ -39,6 +39,7 @@ function initDatabase() {
       description TEXT,
       price REAL DEFAULT 0,
       cost_price REAL DEFAULT 0,
+      low_stock_threshold INTEGER,
       organization_id INTEGER NOT NULL,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
