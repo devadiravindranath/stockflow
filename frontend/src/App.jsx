@@ -11,6 +11,7 @@ import SetupOrganization from './pages/SetupOrganization';
 
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
+import Products from './pages/Products';
 
 function App() {
   return (
@@ -35,9 +36,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
-              
-              {/* Future placeholders for sidebar links */}
-              <Route path="/products" element={<div className="p-8">Products (Protected)</div>} />
+              <Route path="/products" element={<Products />} />
               <Route path="/inventory" element={<div className="p-8">Inventory (Protected)</div>} />
               <Route path="/settings" element={<div className="p-8">Settings (Protected)</div>} />
             </Route>
