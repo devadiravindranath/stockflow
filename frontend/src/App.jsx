@@ -10,6 +10,7 @@ import NotFound from './pages/NotFound';
 import SetupOrganization from './pages/SetupOrganization';
 
 import DashboardLayout from './layouts/DashboardLayout';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -33,8 +34,7 @@ function App() {
           {/* Protected Routes - Org Required */}
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
-              {/* Dashboard placeholder until Task 17 */}
-              <Route path="/dashboard" element={<div className="p-8">Dashboard Overview (Protected)</div>} />
+              <Route path="/dashboard" element={<Dashboard />} />
               
               {/* Future placeholders for sidebar links */}
               <Route path="/products" element={<div className="p-8">Products (Protected)</div>} />
