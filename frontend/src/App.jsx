@@ -9,6 +9,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './pages/NotFound';
 import SetupOrganization from './pages/SetupOrganization';
 
+import DashboardLayout from './layouts/DashboardLayout';
+
 function App() {
   return (
     <AuthProvider>
@@ -30,8 +32,15 @@ function App() {
 
           {/* Protected Routes - Org Required */}
           <Route element={<ProtectedRoute />}>
-            {/* Dashboard placeholder until Task 17 */}
-            <Route path="/dashboard" element={<div className="p-8">Dashboard Overview (Protected)</div>} />
+            <Route element={<DashboardLayout />}>
+              {/* Dashboard placeholder until Task 17 */}
+              <Route path="/dashboard" element={<div className="p-8">Dashboard Overview (Protected)</div>} />
+              
+              {/* Future placeholders for sidebar links */}
+              <Route path="/products" element={<div className="p-8">Products (Protected)</div>} />
+              <Route path="/inventory" element={<div className="p-8">Inventory (Protected)</div>} />
+              <Route path="/settings" element={<div className="p-8">Settings (Protected)</div>} />
+            </Route>
           </Route>
 
           {/* 404 Catch-all */}
