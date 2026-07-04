@@ -38,6 +38,22 @@ class AuthController {
       next(error);
     }
   }
+
+  /**
+   * Get the current authenticated user's profile.
+   */
+  async getProfile(req, res, next) {
+    try {
+      res.status(200).json({
+        success: true,
+        data: {
+          user: req.user,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new AuthController();
