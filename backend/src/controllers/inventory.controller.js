@@ -1,4 +1,4 @@
-const inventoryRepository = require('../repositories/inventory.repository');
+const inventoryService = require('../services/inventory.service');
 const ApiError = require('../utils/ApiError');
 
 module.exports = {
@@ -6,7 +6,7 @@ module.exports = {
   async getAll(req, res, next) {
     try {
       const organizationId = req.user.organization_id;
-      const transactions = inventoryRepository.findAllByOrganization(organizationId);
+      const transactions = await inventoryService.getAll(organizationId);
       res.json({ success: true, data: transactions });
     } catch (err) {
       next(err);
@@ -17,7 +17,7 @@ module.exports = {
   async getById(req, res, next) {
     try {
       const { id } = req.params;
-      const transaction = inventoryRepository.findById(id);
+      const transaction = inventoryService.getById(id);
       if (!transaction) {
         return next(new ApiError(404, 'Inventory transaction not found'));
       }
@@ -30,17 +30,8 @@ module.exports = {
   // POST /api/inventory
   async create(req, res, next) {
     try {
-      const { product_id, quantity, type, reference, notes } = req.body;
-      const performed_by = req.user.id;
-      const newTransaction = inventoryRepository.create({
-        product_id,
-        quantity,
-        type,
-        reference,
-        notes,
-        performed_by,
-      });
-      res.status(201).json({ success: true, data: newTransaction });
+      const transaction = await inventoryService.create(req.body, req.user);
+      res.status(201).json({ success: true, data: transaction });
     } catch (err) {
       next(err);
     }
@@ -48,13 +39,11 @@ module.exports = {
 
   // PUT /api/inventory/:id
   async update(req, res, next) {
-    // Not implemented in MVP
     return next(new ApiError(501, 'Update inventory transaction not implemented'));
   },
 
   // DELETE /api/inventory/:id
   async remove(req, res, next) {
-    // Not implemented in MVP
     return next(new ApiError(501, 'Delete inventory transaction not implemented'));
   },
 };
