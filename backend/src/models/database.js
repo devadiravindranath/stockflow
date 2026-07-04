@@ -30,6 +30,38 @@ function initDatabase() {
     );
   `);
 
+  // Create products table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      sku TEXT NOT NULL,
+      description TEXT,
+      price REAL DEFAULT 0,
+      organization_id INTEGER NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
+      UNIQUE(sku, organization_id)
+    );
+  `);
+
+  // Create inventory table (transactions)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS inventory (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER NOT NULL,
+      quantity INTEGER NOT NULL,
+      type TEXT NOT NULL, -- 'stock_in', 'stock_out', 'adjustment'
+      reference TEXT,
+      notes TEXT,
+      performed_by INTEGER,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+      FOREIGN KEY (performed_by) REFERENCES users(id) ON DELETE SET NULL
+    );
+  `);
+
   console.log('[Database] Schema initialized successfully.');
 }
 

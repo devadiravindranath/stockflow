@@ -3,6 +3,7 @@ const cors = require('cors');
 const healthRoutes = require('./routes/health.routes');
 const authRoutes = require('./routes/auth.routes');
 const organizationRoutes = require('./routes/organization.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/organizations', organizationRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // --------------- Error Handling ---------------
 app.use(errorHandler);
