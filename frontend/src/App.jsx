@@ -23,9 +23,13 @@ function App() {
             <Route path="/signup" element={<Signup />} />
           </Route>
           
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
+          {/* Protected Routes - No Org Required */}
+          <Route element={<ProtectedRoute requireOrg={false} />}>
             <Route path="/setup-organization" element={<SetupOrganization />} />
+          </Route>
+
+          {/* Protected Routes - Org Required */}
+          <Route element={<ProtectedRoute />}>
             {/* Dashboard placeholder until Task 17 */}
             <Route path="/dashboard" element={<div className="p-8">Dashboard Overview (Protected)</div>} />
           </Route>
