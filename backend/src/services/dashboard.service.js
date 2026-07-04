@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const settingsRepository = require('../repositories/settings.repository');
 
 class DashboardService {
   async getDashboardStats(organizationId) {
@@ -6,11 +7,14 @@ class DashboardService {
     const productsStmt = db.prepare('SELECT COUNT(*) as count FROM products WHERE organization_id = ?');
     const totalProducts = productsStmt.get(organizationId).count;
 
+    // Fetch org settings for default threshold
+    const settings = settingsRepository.getSettings(organizationId);
+    const defaultThreshold = settings.defaultLowStockThreshold;
+
     // 2. Current Stock Levels (Calculate current quantity by summing inventory transactions)
-    // We can join products and inventory to find current stock per product, and then calculate total value and low stock
     const stockStmt = db.prepare(`
       SELECT 
-        p.id, p.name, p.price,
+        p.id, p.name, p.price, p.low_stock_threshold,
         COALESCE(SUM(
           CASE 
             WHEN i.type = 'stock_in' THEN i.quantity 
@@ -30,8 +34,11 @@ class DashboardService {
     // Calculate total stock value (price * current_stock)
     const totalStockValue = productsStock.reduce((acc, p) => acc + (p.price * Math.max(0, p.current_stock)), 0);
     
-    // Low stock count (assuming < 10 is low stock for MVP, normally this would be a per-product setting)
-    const lowStockCount = productsStock.filter(p => p.current_stock < 10).length;
+    // Low stock count (dynamic threshold per product or fallback to org default)
+    const lowStockCount = productsStock.filter(p => {
+      const threshold = p.low_stock_threshold !== null ? p.low_stock_threshold : defaultThreshold;
+      return p.current_stock <= threshold;
+    }).length;
 
     // 3. Recent activity (last 5 inventory movements)
     const activityStmt = db.prepare(`
