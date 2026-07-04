@@ -1,10 +1,12 @@
 import React, { createContext, useState, useEffect } from 'react';
 import authService from '../services/auth.service';
+import organizationService from '../services/organization.service';
 
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [organization, setOrganization] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Initialize and verify user session on mount
@@ -18,12 +20,23 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const response = await authService.getProfile();
-        setUser(response.data.user);
+        const userData = response.data.user;
+        setUser(userData);
+        
+        // If user belongs to an organization, fetch its details
+        if (userData.organization_id) {
+          try {
+            const orgResponse = await organizationService.getMyOrganization();
+            setOrganization(orgResponse.data.data);
+          } catch (orgError) {
+            console.error('[AuthContext] Failed to fetch organization:', orgError);
+          }
+        }
       } catch (error) {
         console.error('[AuthContext] Session verification failed:', error);
-        // Clear corrupt or expired credentials
         localStorage.removeItem('token');
         setUser(null);
+        setOrganization(null);
       } finally {
         setLoading(false);
       }
@@ -42,6 +55,16 @@ export const AuthProvider = ({ children }) => {
       
       localStorage.setItem('token', token);
       setUser(userData);
+      
+      if (userData.organization_id) {
+        try {
+          const orgResponse = await organizationService.getMyOrganization();
+          setOrganization(orgResponse.data.data);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      
       return userData;
     } catch (error) {
       throw error.response?.data?.message || 'Login failed';
@@ -70,10 +93,13 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
+    setOrganization(null);
   };
 
   const value = {
     user,
+    organization,
+    setOrganization,
     loading,
     login,
     signup,

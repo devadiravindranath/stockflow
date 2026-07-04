@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './pages/NotFound';
+import SetupOrganization from './pages/SetupOrganization';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
+            <Route path="/setup-organization" element={<SetupOrganization />} />
             {/* Dashboard placeholder until Task 17 */}
             <Route path="/dashboard" element={<div className="p-8">Dashboard Overview (Protected)</div>} />
           </Route>
