@@ -1,0 +1,16 @@
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+
+/**
+ * Custom hook to easily consume the global authentication state.
+ * @returns {object} Auth state context.
+ */
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export default useAuth;
