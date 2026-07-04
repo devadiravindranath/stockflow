@@ -43,6 +43,44 @@ class AuthService {
       token,
     };
   }
+
+  /**
+   * Handle user authentication/login business logic.
+   * @param {object} credentials - Login email and password.
+   * @returns {Promise<object>} Object containing the user data (excluding password) and JWT token.
+   */
+  async login({ email, password }) {
+    // 1. Find user by email
+    const user = userRepository.findByEmail(email);
+    if (!user) {
+      throw new ApiError(401, 'Invalid email or password');
+    }
+
+    // 2. Compare passwords
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+      throw new ApiError(401, 'Invalid email or password');
+    }
+
+    // 3. Generate access token
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    // 4. Return user info (sanitize password)
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        organization_id: user.organization_id,
+      },
+      token,
+    };
+  }
 }
 
 module.exports = new AuthService();

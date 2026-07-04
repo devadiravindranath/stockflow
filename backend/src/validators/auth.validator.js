@@ -21,6 +21,25 @@ function validateSignup(req, res, next) {
   next();
 }
 
+/**
+ * Validate user login request body.
+ */
+function validateLogin(req, res, next) {
+  const { email, password } = req.body;
+
+  if (!email || typeof email !== 'string' || email.trim() === '') {
+    return next(new ApiError(400, 'Email is required'));
+  }
+
+  if (!password || typeof password !== 'string' || password.trim() === '') {
+    return next(new ApiError(400, 'Password is required'));
+  }
+
+  next();
+}
+
 module.exports = {
   validateSignup,
+  validateLogin,
 };
+
