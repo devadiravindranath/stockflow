@@ -6,6 +6,7 @@ const organizationRoutes = require('./routes/organization.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const productRoutes = require('./routes/product.routes');
 const inventoryRoutes = require('./routes/inventory.routes');
+const settingsRoutes = require('./routes/settings.routes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -13,8 +14,6 @@ const app = express();
 // --------------- Middleware ---------------
 app.use(cors());
 app.use(express.json());
-
-const settingsRoutes = require('./routes/settings.routes');
 
 // --------------- Routes ---------------
 app.use('/api', healthRoutes);
