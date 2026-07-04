@@ -59,6 +59,21 @@ class UserRepository {
       throw error;
     }
   }
+
+  /**
+   * Update the user's organization.
+   * @param {number|string} userId - The user ID.
+   * @param {number|string} organizationId - The organization ID.
+   * @returns {void}
+   */
+  updateOrganization(userId, organizationId) {
+    try {
+      const stmt = db.prepare('UPDATE users SET organization_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+      stmt.run(organizationId, userId);
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = new UserRepository();
