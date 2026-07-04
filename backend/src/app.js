@@ -14,12 +14,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const settingsRoutes = require('./routes/settings.routes');
+
 // --------------- Routes ---------------
 app.use('/api', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/products', productRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // --------------- Error Handling ---------------
 app.use(errorHandler);

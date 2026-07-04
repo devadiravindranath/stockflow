@@ -64,6 +64,15 @@ function initDatabase() {
     );
   `);
 
+  // Create settings table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      organization_id INTEGER PRIMARY KEY,
+      default_low_stock_threshold INTEGER DEFAULT 5,
+      FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+    );
+  `);
+
   console.log('[Database] Schema initialized successfully.');
 }
 
