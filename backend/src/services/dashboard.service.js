@@ -3,41 +3,28 @@ const settingsRepository = require('../repositories/settings.repository');
 
 class DashboardService {
   async getDashboardStats(organizationId) {
-    // 1. Total products
-    const productsStmt = db.prepare('SELECT COUNT(*) as count FROM products WHERE organization_id = ?');
-    const totalProducts = productsStmt.get(organizationId).count;
-
     // Fetch org settings for default threshold
     const settings = settingsRepository.getSettings(organizationId);
-    const defaultThreshold = settings.defaultLowStockThreshold;
+    const defaultThreshold = settings ? settings.defaultLowStockThreshold : 5;
 
-    // 2. Current Stock Levels (Calculate current quantity by summing inventory transactions)
-    const stockStmt = db.prepare(`
-      SELECT 
-        p.id, p.name, p.price, p.low_stock_threshold,
-        COALESCE(SUM(
-          CASE 
-            WHEN i.type = 'stock_in' THEN i.quantity 
-            WHEN i.type = 'stock_out' THEN -i.quantity 
-            WHEN i.type = 'adjustment' THEN i.quantity 
-            ELSE 0 
-          END
-        ), 0) as current_stock
-      FROM products p
-      LEFT JOIN inventory i ON p.id = i.product_id
-      WHERE p.organization_id = ?
-      GROUP BY p.id
-    `);
-    
-    const productsStock = stockStmt.all(organizationId);
-    
-    // Calculate total stock value (price * current_stock)
-    const totalStockValue = productsStock.reduce((acc, p) => acc + (p.price * Math.max(0, p.current_stock)), 0);
-    
+    // Get all products for this organization
+    const productsStmt = db.prepare('SELECT price, low_stock_threshold, quantity_on_hand FROM products WHERE organization_id = ?');
+    const products = productsStmt.all(organizationId);
+
+    const totalProducts = products.length;
+
+    // Total Quantity: sum of quantity_on_hand across all products
+    const totalQuantity = products.reduce((sum, p) => sum + (p.quantity_on_hand || 0), 0);
+
+    // Calculate total stock value (price * quantity_on_hand)
+    const totalStockValue = products.reduce((sum, p) => sum + ((p.price || 0) * (p.quantity_on_hand || 0)), 0);
+
     // Low stock count (dynamic threshold per product or fallback to org default)
-    const lowStockCount = productsStock.filter(p => {
-      const threshold = p.low_stock_threshold !== null ? p.low_stock_threshold : defaultThreshold;
-      return p.current_stock <= threshold;
+    const lowStockCount = products.filter(p => {
+      const threshold = p.low_stock_threshold !== null && p.low_stock_threshold !== undefined
+        ? p.low_stock_threshold
+        : defaultThreshold;
+      return (p.quantity_on_hand || 0) <= threshold;
     }).length;
 
     // 3. Recent activity (last 5 inventory movements)
@@ -57,6 +44,7 @@ class DashboardService {
 
     return {
       totalProducts,
+      totalQuantity,
       totalStockValue,
       lowStockCount,
       recentActivity
