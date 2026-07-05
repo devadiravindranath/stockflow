@@ -73,6 +73,21 @@ const validateProduct = (req, res, next) => {
     req.body.low_stock_threshold = null;
   }
 
+  // Quantity On Hand: optional, non-negative integer, defaults to 0
+  const { quantity_on_hand } = req.body;
+  if (quantity_on_hand !== undefined && quantity_on_hand !== null && quantity_on_hand !== '') {
+    const qtyNum = Number(quantity_on_hand);
+    if (!Number.isInteger(qtyNum)) {
+      return next(new ApiError(400, 'Quantity On Hand must be an integer'));
+    }
+    if (qtyNum < 0) {
+      return next(new ApiError(400, 'Quantity On Hand cannot be negative'));
+    }
+    req.body.quantity_on_hand = qtyNum;
+  } else {
+    req.body.quantity_on_hand = 0;
+  }
+
   // Description: optional, max 500 chars
   if (description && typeof description === 'string' && description.length > 500) {
     return next(new ApiError(400, 'Description cannot exceed 500 characters'));

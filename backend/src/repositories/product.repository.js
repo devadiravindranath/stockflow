@@ -2,12 +2,12 @@ const db = require('../config/database');
 
 class ProductRepository {
   create(productData) {
-    const { name, sku, description, price, cost_price, low_stock_threshold, organization_id } = productData;
+    const { name, sku, description, price, cost_price, low_stock_threshold, quantity_on_hand, organization_id } = productData;
     const stmt = db.prepare(`
-      INSERT INTO products (name, sku, description, price, cost_price, low_stock_threshold, organization_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO products (name, sku, description, price, cost_price, low_stock_threshold, quantity_on_hand, organization_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
-    const info = stmt.run(name, sku, description, price || 0, cost_price || 0, low_stock_threshold, organization_id);
+    const info = stmt.run(name, sku, description, price || 0, cost_price || 0, low_stock_threshold, quantity_on_hand || 0, organization_id);
     return this.findById(info.lastInsertRowid, organization_id);
   }
 
@@ -43,13 +43,23 @@ class ProductRepository {
   }
 
   update(id, organizationId, updateData) {
-    const { name, sku, description, price, cost_price, low_stock_threshold } = updateData;
+    const { name, sku, description, price, cost_price, low_stock_threshold, quantity_on_hand } = updateData;
     const stmt = db.prepare(`
       UPDATE products 
-      SET name = ?, sku = ?, description = ?, price = ?, cost_price = ?, low_stock_threshold = ?, updated_at = CURRENT_TIMESTAMP
+      SET name = ?, sku = ?, description = ?, price = ?, cost_price = ?, low_stock_threshold = ?, quantity_on_hand = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND organization_id = ?
     `);
-    stmt.run(name, sku, description, price, cost_price || 0, low_stock_threshold, id, organizationId);
+    stmt.run(name, sku, description, price, cost_price || 0, low_stock_threshold, quantity_on_hand || 0, id, organizationId);
+    return this.findById(id, organizationId);
+  }
+
+  updateQuantity(id, organizationId, newQuantity) {
+    const stmt = db.prepare(`
+      UPDATE products 
+      SET quantity_on_hand = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND organization_id = ?
+    `);
+    stmt.run(newQuantity, id, organizationId);
     return this.findById(id, organizationId);
   }
 

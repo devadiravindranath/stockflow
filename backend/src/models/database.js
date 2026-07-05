@@ -40,6 +40,7 @@ function initDatabase() {
       price REAL DEFAULT 0,
       cost_price REAL DEFAULT 0,
       low_stock_threshold INTEGER,
+      quantity_on_hand INTEGER DEFAULT 0,
       organization_id INTEGER NOT NULL,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -47,6 +48,17 @@ function initDatabase() {
       UNIQUE(sku, organization_id)
     );
   `);
+
+  // Migration: add quantity_on_hand column if it does not exist (for existing databases)
+  try {
+    db.exec(`ALTER TABLE products ADD COLUMN quantity_on_hand INTEGER DEFAULT 0;`);
+    console.log('[Database] Migrated products: added quantity_on_hand column');
+  } catch (e) {
+    // Column already exists – ignore the "duplicate column name" error
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Unexpected migration error:', e);
+    }
+  }
 
   // Create inventory table (transactions)
   db.exec(`
