@@ -37,20 +37,26 @@ class InventoryService {
       throw new ApiError(400, 'Quantity must be a positive number');
     }
 
-    // Business rule: stock_out cannot reduce stock below zero
-    if (type === 'stock_out') {
-      const currentStock = inventoryRepository.getCurrentStock(product_id);
-      if (currentStock - qty < 0) {
+    // Use product.quantity_on_hand as the source of truth
+    const currentQty = product.quantity_on_hand || 0;
+    let newQty;
+
+    if (type === 'stock_in') {
+      newQty = currentQty + qty;
+    } else if (type === 'stock_out') {
+      newQty = currentQty - qty;
+      if (newQty < 0) {
         throw new ApiError(400, 'Insufficient stock for this operation');
       }
-    }
-
-    // For adjustment we allow positive or negative quantity but enforce no negative total stock
-    if (type === 'adjustment') {
-      const currentStock = inventoryRepository.getCurrentStock(product_id);
-      if (currentStock + qty < 0) {
+    } else if (type === 'adjustment') {
+      // For adjustment, quantity can represent a delta (positive or negative)
+      // The validator allows positive qty; we add it as-is
+      newQty = currentQty + qty;
+      if (newQty < 0) {
         throw new ApiError(400, 'Adjustment would result in negative stock');
       }
+    } else {
+      throw new ApiError(400, `Invalid transaction type: ${type}`);
     }
 
     // Persist transaction
@@ -62,6 +68,9 @@ class InventoryService {
       notes: notes || null,
       performed_by: performedByUser.id,
     });
+
+    // Update the product's quantity_on_hand
+    productRepository.updateQuantity(product_id, organizationId, newQty);
 
     return transaction;
   }
