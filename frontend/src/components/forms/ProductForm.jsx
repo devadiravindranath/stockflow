@@ -9,6 +9,7 @@ const EMPTY_FORM = {
   price: '',
   cost_price: '',
   low_stock_threshold: '',
+  quantity_on_hand: '',
 };
 
 const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
@@ -24,6 +25,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
         price: initialData.price?.toString() || '',
         cost_price: initialData.cost_price?.toString() || '',
         low_stock_threshold: initialData.low_stock_threshold?.toString() || '',
+        quantity_on_hand: initialData.quantity_on_hand?.toString() || '0',
       });
     } else {
       setFormData(EMPTY_FORM);
@@ -79,6 +81,15 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
       }
     }
 
+    if (formData.quantity_on_hand !== '') {
+      const qtyNum = Number(formData.quantity_on_hand);
+      if (!Number.isInteger(qtyNum)) {
+        newErrors.quantity_on_hand = 'Must be an integer';
+      } else if (qtyNum < 0) {
+        newErrors.quantity_on_hand = 'Cannot be negative';
+      }
+    }
+
     if (formData.description.length > 500) {
       newErrors.description = 'Description cannot exceed 500 characters';
     }
@@ -107,6 +118,7 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
       price: formData.price !== '' ? parseFloat(formData.price) : 0,
       cost_price: formData.cost_price !== '' ? parseFloat(formData.cost_price) : 0,
       low_stock_threshold: formData.low_stock_threshold !== '' ? parseInt(formData.low_stock_threshold, 10) : null,
+      quantity_on_hand: formData.quantity_on_hand !== '' ? parseInt(formData.quantity_on_hand, 10) : 0,
     });
   };
 
@@ -134,6 +146,20 @@ const ProductForm = ({ initialData = null, onSubmit, onCancel, isLoading }) => {
           maxLength={50}
           required
         />
+        <Input
+          id="quantity_on_hand"
+          label="Quantity On Hand"
+          type="number"
+          placeholder="0"
+          min="0"
+          step="1"
+          value={formData.quantity_on_hand}
+          onChange={handleChange}
+          error={errors.quantity_on_hand}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <Input
           id="low_stock_threshold"
           label="Low Stock Threshold"

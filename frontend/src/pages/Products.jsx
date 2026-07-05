@@ -99,17 +99,18 @@ const Products = () => {
       render: (product) => `$${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     },
     {
-      header: 'Current Stock',
-      accessor: 'current_stock',
+      header: 'Qty On Hand',
+      accessor: 'quantity_on_hand',
       render: (product) => {
-        const stock = product.current_stock;
+        const qty = product.quantity_on_hand || 0;
+        const threshold = product.low_stock_threshold ?? 10;
         let badgeVariant = 'success';
-        if (stock === 0) badgeVariant = 'danger';
-        else if (stock < 10) badgeVariant = 'warning';
+        if (qty === 0) badgeVariant = 'danger';
+        else if (qty <= threshold) badgeVariant = 'warning';
 
         return (
           <Badge variant={badgeVariant}>
-            {stock} units
+            {qty} units
           </Badge>
         );
       }

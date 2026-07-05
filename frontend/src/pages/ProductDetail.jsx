@@ -83,10 +83,11 @@ const ProductDetail = () => {
     );
   }
 
-  const stockLevel = product?.current_stock ?? 0;
+  const stockLevel = product?.quantity_on_hand ?? 0;
+  const threshold = product?.low_stock_threshold ?? 10;
   let stockBadge = 'success';
   if (stockLevel === 0) stockBadge = 'danger';
-  else if (stockLevel < 10) stockBadge = 'warning';
+  else if (stockLevel <= threshold) stockBadge = 'warning';
 
   return (
     <div>
@@ -156,6 +157,10 @@ const ProductDetail = () => {
                 <dd className="mt-1 text-sm text-slate-900">
                   {new Date(product.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                 </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-slate-500">Quantity On Hand</dt>
+                <dd className="mt-1 text-sm text-slate-900">{product.quantity_on_hand ?? 0}</dd>
               </div>
               {product.description && (
                 <div className="sm:col-span-2">
