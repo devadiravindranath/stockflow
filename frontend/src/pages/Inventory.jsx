@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Table from '../components/ui/Table';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
+import EmptyState from '../components/ui/EmptyState';
 import inventoryService from '../services/inventory.service';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import InventoryForm from '../components/forms/InventoryForm';
 import PageHeader from '../components/layout/PageHeader';
 
 const Inventory = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -33,53 +30,62 @@ const Inventory = () => {
     { header: 'Date', accessor: 'created_at', className: 'text-slate-500', render: (row) => new Date(row.created_at).toLocaleString() },
     { header: 'Product', accessor: 'product_name', cellClassName: 'font-medium text-slate-900' },
     { 
-      header: 'Type', 
+      header: 'Transaction Type', 
       accessor: 'type',
-      render: (row) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          row.type === 'stock_in' ? 'bg-success-100 text-success-800' : 
-          row.type === 'stock_out' ? 'bg-danger-100 text-danger-800' : 
-          'bg-warning-100 text-warning-800'
-        }`}>
-          {row.type.replace('_', ' ')}
-        </span>
-      )
+      render: (row) => {
+        const isAdd = row.type === 'Initial Stock' || row.type === 'Stock Increased' || row.type === 'stock_in';
+        const isSub = row.type === 'Stock Decreased' || row.type === 'stock_out';
+        return (
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            isAdd ? 'bg-success-100 text-success-800' : 
+            isSub ? 'bg-danger-100 text-danger-800' : 
+            'bg-warning-100 text-warning-800'
+          }`}>
+            {row.type}
+          </span>
+        );
+      }
     },
-    { header: 'Quantity', accessor: 'quantity' },
-    { header: 'Reference', accessor: 'reference', className: 'text-slate-500' },
-    { header: 'Performed By', accessor: 'user_name', className: 'text-slate-500' },
+    { 
+      header: 'Quantity', 
+      accessor: 'quantity',
+      render: (row) => {
+        const isAdd = row.type === 'Initial Stock' || row.type === 'Stock Increased' || row.type === 'stock_in';
+        const isSub = row.type === 'Stock Decreased' || row.type === 'stock_out';
+        const prefix = isAdd ? '+' : (isSub ? '-' : '');
+        const colorClass = isAdd ? 'text-success-700 font-semibold' : (isSub ? 'text-danger-700 font-semibold' : 'text-slate-700');
+        return (
+          <span className={colorClass}>
+            {prefix}{row.quantity}
+          </span>
+        );
+      }
+    },
+    { header: 'Note', accessor: 'notes', className: 'text-slate-500' },
   ];
 
   return (
     <div>
       <PageHeader 
         title="Inventory Transactions" 
-        description="View and manage stock movements across your organization."
-        actions={
-          <Button variant="primary" onClick={() => setIsFormOpen(true)}>
-            Add Transaction
-          </Button>
-        }
+        description="View stock movement history across your organization."
       />
 
-      <Card className="p-6">
-        {loading && transactions.length === 0 ? (
+      {loading ? (
+        <div className="flex h-64 items-center justify-center">
           <LoadingSpinner />
-        ) : error ? (
-          <p className="text-danger-600">{error}</p>
-        ) : (
-          <Table columns={columns} data={transactions} />
-        )}
-      </Card>
-
-      {isFormOpen && (
-        <InventoryForm 
-          onClose={() => setIsFormOpen(false)} 
-          onSuccess={() => {
-            setIsFormOpen(false);
-            fetchData(); // reload transactions after success
-          }} 
+        </div>
+      ) : error ? (
+        <div className="mb-6 p-4 bg-danger-50 text-danger-700 rounded-lg">
+          {error}
+        </div>
+      ) : transactions.length === 0 ? (
+        <EmptyState
+          title="No transactions yet"
+          description="Create or edit products in the catalog to record stock activity history."
         />
+      ) : (
+        <Table columns={columns} data={transactions} />
       )}
     </div>
   );

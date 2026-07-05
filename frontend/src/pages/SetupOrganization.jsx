@@ -11,7 +11,7 @@ const SetupOrganization = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
-  const { setOrganization } = useAuth();
+  const { setOrganization, setUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,10 +24,16 @@ const SetupOrganization = () => {
       setIsLoading(true);
       setError('');
       const response = await organizationService.createOrganization(name);
+      const organizationData = response.data.data;
       
       // Update auth context with the new organization
       if (setOrganization) {
-        setOrganization(response.data.data);
+        setOrganization(organizationData);
+      }
+
+      // Update auth context with the updated user details containing organization_id
+      if (setUser) {
+        setUser(prevUser => prevUser ? { ...prevUser, organization_id: organizationData.id } : null);
       }
       
       navigate('/dashboard');
