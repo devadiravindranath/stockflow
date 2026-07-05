@@ -34,7 +34,7 @@ class ProductController {
   async createProduct(req, res, next) {
     try {
       const organizationId = req.user.organization_id;
-      const product = await productService.createProduct(req.body, organizationId);
+      const product = await productService.createProduct(req.body, organizationId, req.user.id);
       
       res.status(201).json({
         success: true,
@@ -50,7 +50,7 @@ class ProductController {
       const organizationId = req.user.organization_id;
       const { id } = req.params;
       
-      const product = await productService.updateProduct(id, req.body, organizationId);
+      const product = await productService.updateProduct(id, req.body, organizationId, req.user.id);
       
       res.status(200).json({
         success: true,

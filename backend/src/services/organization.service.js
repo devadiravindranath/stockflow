@@ -8,6 +8,15 @@ class OrganizationService {
       throw new ApiError(400, 'Organization name is required');
     }
 
+    // Check if the user already belongs to an organization
+    const user = userRepository.findById(userId);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+    if (user.organization_id) {
+      throw new ApiError(409, 'User already belongs to an organization');
+    }
+
     // Generate a unique slug from the name
     let baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     let slug = baseSlug;
